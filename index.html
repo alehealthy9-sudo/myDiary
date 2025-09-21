@@ -1,1 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diario — El absurdo (Camus) — Alejandra Triana</title>
+  <style>
+    :root{
+      --beige-1:#f5efe6; /* fondo */
+      --beige-2:#fff8ef; /* página */
+      --accent:#c9a67a; /* marrón suave */
+      --muted:#6b5b4a;
+      --shadow: rgba(20,20,20,0.08);
+      --radius:18px;
+      font-family: 'Georgia', 'Times New Roman', serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,var(--beige-1),#fbf6ef 60%); color:var(--muted); -webkit-font-smoothing:antialiased;
+      display:flex;align-items:center;justify-content:center;padding:28px;
+    }
 
+    .book-app{width:100%;max-width:960px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    h1{margin:0;font-size:20px;color:var(--accent);letter-spacing:0.6px}
+    .subtitle{font-size:13px;color:var(--muted)}
+
+    .book-shell{background:transparent;padding:12px;border-radius:20px;display:flex;gap:20px;align-items:center}
+
+    .page-view{
+      width:100%;background:linear-gradient(180deg,var(--beige-2),#fffefb);
+      border-radius:14px;padding:28px 32px;box-shadow:0 10px 30px var(--shadow);min-height:480px;position:relative;
+      transition:transform 0.45s cubic-bezier(.2,.9,.3,1), opacity 0.35s ease;
+      overflow:auto;
+    }
+
+    .paper-edge{
+      position:absolute;left:12px;top:12px;bottom:12px;width:8px;background:linear-gradient(90deg,transparent,#fff5ea);border-radius:8px;opacity:0.6
+    }
+
+    .page-title{font-family: 'Georgia', serif;color:#8b5e3c;margin:0 0 6px;font-size:18px}
+    .page-meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+    .page-body{line-height:1.75;color:#4b3b2e;font-size:15px;white-space:pre-wrap}
+
+    footer.page-footer{position:sticky;bottom:0;margin-top:22px;padding-top:12px;border-top:1px dashed rgba(100,80,60,0.06);display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);background:linear-gradient(180deg,transparent,var(--beige-2));padding-bottom:8px}
+    footer .credit{font-weight:600;color:var(--accent)}
+
+    .controls{display:flex;flex-direction:column;gap:10px;align-items:center}
+    .nav-btn{appearance:none;border:0;background:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.08);cursor:pointer;width:52px;height:52px;display:grid;place-items:center}
+    .nav-btn svg{width:20px;height:20px;fill:var(--accent)}
+    .page-indicator{font-size:13px;color:var(--muted)}
+
+    /* flip */
+    .flip-right{transform:translateX(40px) rotateY(-8deg);opacity:0}
+    .flip-left{transform:translateX(-40px) rotateY(8deg);opacity:0}
+
+    @media (max-width:700px){
+      .book-shell{flex-direction:column}
+      .controls{flex-direction:row;justify-content:center}
+      .page-view{min-height:420px;padding:20px}
+    }
+
+    .doodle{position:absolute;right:18px;top:12px;opacity:0.12;font-size:68px}
+  </style>
+</head>
+<body>
+  <div class="book-app" role="application" aria-label="Diario El absurdo de Camus">
+    <header>
+      <div>
+        <h1>Diario — El absurdo (Camus)</h1>
+        <div class="subtitle">Seis páginas de reflexión • Creado por Alejandra Triana</div>
+      </div>
+      <div class="subtitle">Formato libro — Navega con ← → o botones</div>
+    </header>
+
+    <div class="book-shell">
+      <div class="controls" aria-hidden="false">
+        <button id="prevBtn" class="nav-btn" title="Página anterior">
+          <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <div class="page-indicator" id="pageIndicator">1 / 6</div>
+        <button id="nextBtn" class="nav-btn" title="Siguiente página">
+          <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+        </button>
+      </div>
+
+      <article id="page" class="page-view" tabindex="0" aria-live="polite">
+        <div class="paper-edge" aria-hidden="true"></div>
+        <div class="doodle">✦</div>
+        <h2 id="pageTitle" class="page-title"></h2>
+        <div id="pageMeta" class="page-meta"></div>
+        <div id="pageBody" class="page-body"></div>
+
+        <footer class="page-footer" role="contentinfo">
+          <div>© <span id="year"></span></div>
+          <div class="credit">Página creada por: Alejandra Triana</div>
+        </footer>
+      </article>
+    </div>
+  </div>
+
+  <script>
+    const pages = [
+      {
+        title: '1. Concepto filosófico elegido',
+        meta: 'El absurdo — Albert Camus',
+        body: `El absurdo, según Albert Camus, es la tensión entre la necesidad humana de encontrar un sentido en la vida y el silencio indiferente del universo. Camus propone que la existencia no ofrece un propósito objetivo, y que el choque entre nuestra sed de sentido y la falta de una respuesta última produce lo que llamamos "lo absurdo". La respuesta recomendada por Camus no es la desesperación, sino la aceptación lúcida del absurdo y la construcción de significado a partir de la propia acción y libertad.`
+      },
+      {
+        title: '2. Reflexión personal',
+        meta: 'Relación con mi vida y entorno',
+        body: `El concepto del absurdo me invita a reflexionar sobre cómo, muchas veces, busco dar un sentido inmediato a lo que hago, y cuando no lo encuentro, me siento frustrada. En mi vida cotidiana, el absurdo se presenta cuando las cosas no salen como las planeo, cuando parece que el esfuerzo no siempre tiene recompensa o cuando no logro entender el “porqué” de ciertas situaciones. Reconocer que la vida no siempre tiene una respuesta clara me ayuda a tomar las cosas con más serenidad, aceptar la incertidumbre y valorar lo que sí puedo construir.`
+      },
+      {
+        title: '3. Ejemplos y situaciones imaginarias',
+        meta: 'Ejemplos personales e imaginarios',
+        body: `• Un ejemplo personal podría ser cuando estudio con mucho esfuerzo para un examen y, aun así, el resultado no refleja todo lo que preparé. El absurdo aparece en esa falta de coherencia entre la dedicación y el resultado.\n\n• Una situación imaginaria sería la de alguien que siembra un jardín hermoso en un lugar donde nunca lo verá nadie. El acto parece carecer de sentido, pero en realidad, la belleza de haberlo hecho ya es suficiente en sí misma.`
+      },
+      {
+        title: '4. Profundización en la comprensión',
+        meta: 'Relación con otras áreas del conocimiento',
+        body: `Relacionar el absurdo con otras áreas me lleva a pensar en la ciencia y la religión: la ciencia busca explicaciones objetivas, mientras que la religión ofrece sentidos trascendentes. El absurdo surge cuando comprendemos que ninguna explicación logra responder todas nuestras preguntas existenciales.\n\nAdemás, este concepto puede conectarse con la psicología, especialmente con la resiliencia: aceptar que la vida no siempre tiene respuestas nos permite adaptarnos y crecer ante la adversidad.`
+      },
+      {
+        title: '5. Ejemplos en la cultura',
+        meta: 'Literatura, cine y música',
+        body: `• Literatura: "El extranjero" de Albert Camus, donde el protagonista enfrenta la indiferencia del mundo y la falta de sentido aparente.\n\n• Cine: "La vida es bella" de Roberto Benigni, que muestra cómo, incluso en medio de la tragedia, se puede encontrar un sentido personal a través de la imaginación y el amor.\n\n• Música: canciones de tono existencial como "Boulevard of Broken Dreams" de Green Day, que transmiten la sensación de vacío y búsqueda de sentido.`
+      },
+      {
+        title: '6. Conclusiones y reflexiones finales',
+        meta: 'Síntesis del aprendizaje',
+        body: `Al finalizar este ejercicio, reflexiono sobre lo aprendido: aceptar el absurdo no significa rendirse, sino reconocer que la vida no tiene un guion fijo. Puedo construir mi propio sentido a partir de mis acciones, mis relaciones y mis decisiones. Reflexionar sobre el absurdo me enseñó a vivir con más libertad y menos ansiedad por tener todas las respuestas. Valoro más los pequeños momentos y entiendo que, aunque la vida no tenga un sentido último, yo puedo darle el mío.`
+      }
+    ];
+
+    const pageEl = document.getElementById('page');
+    const titleEl = document.getElementById('pageTitle');
+    const metaEl = document.getElementById('pageMeta');
+    const bodyEl = document.getElementById('pageBody');
+    const indicator = document.getElementById('pageIndicator');
+    const yearEl = document.getElementById('year');
+
+    let idx = 0;
+    function render(){
+      const p = pages[idx];
+      // set content (preserve line breaks)
+      titleEl.textContent = p.title;
+      metaEl.textContent = p.meta;
+      // convert newlines to <br>
+      bodyEl.innerHTML = p.body.replace(/\n/g, '<br>');
+      indicator.textContent = (idx+1) + ' / ' + pages.length;
+      yearEl.textContent = new Date().getFullYear();
+      pageEl.focus();
+    }
+
+    function go(n){
+      const old = idx;
+      const next = Math.max(0, Math.min(pages.length-1, idx + n));
+      if(next === old) return;
+      // animation: add class, then render mid-way
+      if(n > 0){
+        pageEl.classList.add('flip-right');
+        setTimeout(()=>{ idx = next; render(); pageEl.classList.remove('flip-right'); }, 180);
+      } else {
+        pageEl.classList.add('flip-left');
+        setTimeout(()=>{ idx = next; render(); pageEl.classList.remove('flip-left'); }, 180);
+      }
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', ()=> go(-1));
+    document.getElementById('nextBtn').addEventListener('click', ()=> go(1));
+
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowRight') go(1);
+      if(e.key === 'ArrowLeft') go(-1);
+    });
+
+    // swipe support
+    let touchStartX = null;
+    pageEl.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].clientX; });
+    pageEl.addEventListener('touchend', (e)=>{
+      if(touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      touchStartX = null;
+      if(Math.abs(dx) > 40){ if(dx < 0) go(1); else go(-1); }
+    });
+
+    // init
+    render();
+  </script>
+</body>
+</html>
